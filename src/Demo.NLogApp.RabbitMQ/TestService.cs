@@ -16,9 +16,10 @@ namespace Demo.NLogApp.RabbitMQ
  
         public void Run()
         {
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 100; i++)
             {
-                _logger.LogWarning($"Wow! We are now in the test service. {i}");    
+                _logger.LogWarning($"Wow! We are now in the test service. {i}");  
+                Console.ReadKey();  
             }
             
         }
