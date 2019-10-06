@@ -1,7 +1,10 @@
 ﻿using System;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using System.Text;
+using System.IO;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using NLog;
+using NLog.Extensions.Logging;
 
 namespace Demo.NLogApp.RabbitMQ.Logger
 {
@@ -9,48 +12,32 @@ namespace Demo.NLogApp.RabbitMQ.Logger
     {
         static void Main(string[] args)
         {
-            ConnectionFactory factory = new ConnectionFactory 
+            IConfiguration configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .Build();
+
+            var serviceCollection = new ServiceCollection();
+
+            ConfigureServices(configuration, serviceCollection);
+
+            // create service provider
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            // entry to run app
+            serviceProvider.GetService<Worker>().Run();
+        }
+
+        private static void ConfigureServices(IConfiguration config, IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddLogging(loggingBuilder =>
             {
-                HostName = "localhost",
-                UserName = "guest",
-                Password = "guest"
-            };
-            IConnection conn = factory.CreateConnection();
-            IModel channel = conn.CreateModel();
+                loggingBuilder.ClearProviders();
+                loggingBuilder.AddNLog(config);
+            });
 
-            try
-            {
-                channel.ExchangeDeclare(exchange: "app-logging", type: "topic", durable: true);
-                var queueName = channel.QueueDeclare().QueueName;
-
-                channel.QueueBind(queue: queueName,
-                    exchange: "app-logging",
-                    routingKey: "demo.nlogapp.rabbitmq.*");
-
-                Console.WriteLine(" [*] Waiting for messages. To exit press CTRL+C");
-
-                var consumer = new EventingBasicConsumer(channel);
-                consumer.Received += (model, ea) =>
-                {
-                    var body = ea.Body;
-                    var message = Encoding.UTF8.GetString(body);
-                    var routingKey = ea.RoutingKey;
-                    Console.WriteLine(" [x] Received '{0}':'{1}'",
-                                      routingKey,
-                                      message);
-                };
-                channel.BasicConsume(queue: queueName,
-                                     autoAck: true,
-                                     consumer: consumer);
-
-                Console.WriteLine(" Press [enter] to exit.");
-                Console.ReadLine();
-            }
-            finally
-            {
-                channel.Close();
-                conn.Close();
-            }
+            serviceCollection.AddTransient<IConsumer, Consumer>();
+            serviceCollection.AddTransient<Worker>();
         }
     }
 }

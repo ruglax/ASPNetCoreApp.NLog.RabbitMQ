@@ -26,8 +26,6 @@ namespace Demo.NLogApp.RabbitMQ
 
             // entry to run app
             serviceProvider.GetService<App>().Run();
-
-
         }
 
         private static void ConfigureServices(IConfiguration config, IServiceCollection serviceCollection)
