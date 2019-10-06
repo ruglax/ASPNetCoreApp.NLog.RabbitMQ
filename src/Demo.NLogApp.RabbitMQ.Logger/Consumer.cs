@@ -1,10 +1,8 @@
-using System;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using System.Text;
 using Microsoft.Extensions.Logging;
 using Demo.NLogApp.RabbitMQ.Logger.Model;
 using Newtonsoft.Json;
+
+using System;
 
 namespace Demo.NLogApp.RabbitMQ.Logger
 {
@@ -19,11 +17,12 @@ namespace Demo.NLogApp.RabbitMQ.Logger
 
         public void Write(string routingKey, string message)
         {
-            LogEntry logEntry = JsonConvert.DeserializeObject<LogEntry>(message);
-            _logger.LogWarning(logEntry.Message);
-            // Console.WriteLine(" [x] Received '{0}':'{1}'",
-            //                           routingKey,
-            //                           message);
+            LogEntry entry = JsonConvert.DeserializeObject<LogEntry>(message);
+            _logger.Log(LogLevel.Warning,
+                default,
+                new ExtendedLogEvent(entry.Message).AddProp("Application", entry.Source),
+                null,
+                ExtendedLogEvent.Formatter);
         }
     }
 }
