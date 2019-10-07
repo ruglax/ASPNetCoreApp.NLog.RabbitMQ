@@ -6,6 +6,9 @@ using System.Text;
 
 namespace Demo.NLogApp.RabbitMQ.Logger.Model
 {
+    /// <summary>
+    /// <see cref="https://github.com/NLog/NLog.Extensions.Logging/wiki/NLog-properties-with-Microsoft-Extension-Logging"/>
+    /// </summary>
     public class ExtendedLogEvent : ILogger, IReadOnlyList<KeyValuePair<string, object>>
     {
         readonly string _format;

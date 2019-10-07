@@ -8,20 +8,24 @@ namespace Demo.NLogApp.RabbitMQ
     class TestService : ITestService
     {
         private readonly ILogger<TestService> _logger;
- 
+
         public TestService(ILogger<TestService> logger)
         {
             _logger = logger;
         }
- 
-        public void Run()
+
+        public void Run(int i = 0)
         {
-            for (int i = 0; i < 100; i++)
+            var level = i % 2 == 0 ? LogLevel.Warning : LogLevel.Information;
+            _logger.Log(level, $"We are sending messages over RabbitMQ whohooo!!. {i}");
+            var keyPressed = Console.ReadKey();
+            if (keyPressed.Key == ConsoleKey.Escape)
             {
-                _logger.LogWarning($"Wow! We are now in the test service. {i}");  
-                Console.ReadKey();  
+                Console.WriteLine("good bye!");
+                return;
             }
-            
+
+            Run(++i);
         }
     }
 }

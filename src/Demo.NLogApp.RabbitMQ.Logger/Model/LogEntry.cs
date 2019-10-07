@@ -1,5 +1,10 @@
+using Demo.NLogApp.RabbitMQ.Logger.Utils;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Demo.NLogApp.RabbitMQ.Logger.Model
 {
@@ -15,6 +20,7 @@ namespace Demo.NLogApp.RabbitMQ.Logger.Model
         public string Message { get; set; }
 
         [JsonProperty("level")]
-        public string Level { get; set; }
+        //[JsonConverter(typeof(LogLevelConverter))]
+        public Microsoft.Extensions.Logging.LogLevel Level { get; set; }
     }
 }

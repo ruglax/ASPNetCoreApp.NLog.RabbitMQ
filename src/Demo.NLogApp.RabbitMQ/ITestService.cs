@@ -4,6 +4,6 @@ namespace Demo.NLogApp.RabbitMQ
 {
     public interface ITestService
     {
-        void Run();
+        void Run(int i = 0);
     }
 }
